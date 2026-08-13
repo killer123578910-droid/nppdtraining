@@ -1,52 +1,48 @@
 import pandas as pd
 import numpy as np
 
-df=pd.read_csv("../data/cleanedcsv.csv")
-
-#top 10 games: criteria: total sale(60%)+critic(%40)
-
+def load_data():
+    return pd.read_csv("../data/cleanedcsv.csv")
 
 
-#best critic games
+def get_yearly_sales(df):
+    df = df.copy()  # Avoid mutating original
+    df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
+    df["year"] = df["year"].astype("Int64")
+    return df.groupby("year")["total_sales"].sum()
 
-cr_games=df.nlargest(10,"critic_score")
-print("high rating games:\n",cr_games[["title","genre","critic_score"]])
-print()
+
+def run_full_analysis():
+    df = load_data()
+    cr_games=df.nlargest(10,"critic_score")
+    print("high rating games:\n",cr_games[["title","genre","critic_score"]])
+    print()
 #bestselling genre
-print("best bestselling genre:")
-genre_group=df.groupby("genre")
-bestvalue=genre_group["total_sales"].sum()
-print(f"{bestvalue.idxmax()} {bestvalue.max()}")
-print()
+    print("best bestselling genre:")
+    genre_group=df.groupby("genre")
+    bestvalue=genre_group["total_sales"].sum()
+    print(f"{bestvalue.idxmax()} {bestvalue.max()}")
+    print()
 #best regionn
-print("best region:")
-ri=pd.Series({"na_sales":df["na_sales"].sum(),
-              "jp_sales":df["jp_sales"].sum(),
-              "pal_sales":df["pal_sales"].sum(),
-              "other_sales":df["other_sales"].sum(),
-              })
+    print("best region:")
+    ri=pd.Series({"na_sales":df["na_sales"].sum(),
+                "jp_sales":df["jp_sales"].sum(),
+                "pal_sales":df["pal_sales"].sum(),
+                "other_sales":df["other_sales"].sum(),
+                })
 
-print(ri.idxmax(),round(ri.max(),2))
-print()
+    print(ri.idxmax(),round(ri.max(),3))
+    print()
 #sale_stats
-print("sale_stats:")
-sale=df["total_sales"].dropna().to_numpy()
-print("means:",np.mean(sale))
-print("max sales:",np.max(sale))
-print("min sales:",np.min(sale))
-print("median:",np.median(sale))
-print()
+    print("sale_stats:")
+    sale=df["total_sales"].dropna().to_numpy()
+    print("means:",np.mean(sale))
+    print("max sales:",np.max(sale))
+    print("min sales:",np.min(sale))
+    print("median:",np.median(sale))
+    print()
 #sale by year
-df["year"] = pd.to_datetime(
-    df["release_date"],
-    errors="coerce"
-).dt.year
+    print(get_yearly_sales(df))
 
-df["year"]=df["year"].astype("Int64")
-year=df.groupby("year")["total_sales"].sum()
-print(year)
-
-
-
-#print(type(anal))
-
+if __name__ == "__main__":
+    run_full_analysis()
