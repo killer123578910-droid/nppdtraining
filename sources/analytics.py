@@ -2,15 +2,25 @@ import pandas as pd
 import numpy as np
 
 def load_data():
-    return pd.read_csv("../data/cleanedcsv.csv")
-
-
+        return pd.read_csv("../data/cleanedcsv.csv")
 def get_yearly_sales(df):
     df = df.copy()  # Avoid mutating original
     df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
     df["year"] = df["year"].astype("Int64")
     return df.groupby("year")["total_sales"].sum()
 
+#def topauthor(df,number):
+#    gr=df.groupby("publishers")[""]
+#def oneauthor(name):
+
+
+def ovr(df,number):
+    #ovrpoint= curentgame (total_sales/maxtotalsales)*40%+(crit/maxcrit)*60%
+    topn=df.nlargest(number,df["overral"])  
+    return topn 
+
+
+#def region():
 
 def run_full_analysis():
     df = load_data()
@@ -43,6 +53,11 @@ def run_full_analysis():
     print()
 #sale by year
     print(get_yearly_sales(df))
-
+    
 if __name__ == "__main__":
-    run_full_analysis()
+    df=load_data()
+    df=pd.read_csv("../data/cleanedcsv.csv")
+    maxsales=df["total_sales"].max()
+    maxcrit=df["critic_score"].max()
+    df["overral"]=round((df["total_sales"]/maxsales)*0.6+(df["critic_score"]/maxcrit)*0.4,4)
+    df.to_csv("../data/cleanedcsv.csv")
