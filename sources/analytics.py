@@ -2,22 +2,22 @@ import pandas as pd
 import numpy as np
 
 def load_data():
-        return pd.read_csv("../data/cleanedcsv.csv")
+        return pd.read_csv("../data/cleanedcsv.csv",index_col="id")
 def get_yearly_sales(df):
     df = df.copy()  # Avoid mutating original
     df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
     df["year"] = df["year"].astype("Int64")
     return df.groupby("year")["total_sales"].sum()
 
-#def topauthor(df,number):
-#    gr=df.groupby("publishers")[""]
-#def oneauthor(name):
-
+def topauthor(df,number):
+    pass
+def oneauthor(name):
+    pass    
 
 def ovr(df,number):
     #ovrpoint= curentgame (total_sales/maxtotalsales)*40%+(crit/maxcrit)*60%
-    topn=df.nlargest(number,df["overral"])  
-    return topn 
+    topn=df.nlargest(number,"overral")
+    return topn
 
 
 #def region():
