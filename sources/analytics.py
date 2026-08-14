@@ -2,17 +2,17 @@ import pandas as pd
 import numpy as np
 
 def load_data():
-        return pd.read_csv("../data/cleanedcsv.csv",index_col="id")
+    return pd.read_csv("../data/cleanedcsv.csv",index_col="id")
 def get_yearly_sales(df):
-    df = df.copy()  # Avoid mutating original
-    df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
-    df["year"] = df["year"].astype("Int64")
     return df.groupby("year")["total_sales"].sum()
 
 def topauthor(df,number):
+    return df.groupby("developer")[["total_sales","overral"]].sum()
+
+def topgenre(df,number):
     pass
-def oneauthor(name):
-    pass    
+
+
 
 def ovr(df,number):
     #ovrpoint= curentgame (total_sales/maxtotalsales)*40%+(crit/maxcrit)*60%
@@ -60,4 +60,6 @@ if __name__ == "__main__":
     maxsales=df["total_sales"].max()
     maxcrit=df["critic_score"].max()
     df["overral"]=round((df["total_sales"]/maxsales)*0.6+(df["critic_score"]/maxcrit)*0.4,4)
+    df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
+    df["year"] = df["year"].astype("Int64")
     df.to_csv("../data/cleanedcsv.csv")
