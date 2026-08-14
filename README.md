@@ -42,9 +42,6 @@ nppdtraining/
 
 ```
 
-Here is the formatted Markdown ready for you to copy:
-
-```markdown
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
