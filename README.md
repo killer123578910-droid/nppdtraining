@@ -38,3 +38,8 @@ nppdtraining/
 ├── requirement.txt            # Pinned dependencies
 ├── .gitignore
 ── README.md                  # This file
+🚀 Getting Started1. PrerequisitesEnsure you have Python installed along with the required libraries:Bashpip install pandas numpy matplotlib
+2. Execution FlowClean Data: Validate raw sales data and produce clean CSV.Bashpython clean_data.py
+Run Analytics: Calculate overall metrics and print statistical summaries to the console.Bashpython analytics.py
+Generate Visualizations: Display graphical distributions and comparison panels.Bashpython visualization.py
+📊 Sample Insights & Key OutputsRegional Market Share: Analyzes sales trends across NA, JP, PAL, and other regions.Top Developers Analysis: Evaluates publisher/developer output based on total volume and combined quality scores.Weighted Ranking System: Ranks games objectively using the custom normalized formula:$$\text{Overall Score} = 0.6 \times \left(\frac{\text{Sales}}{\text{Max Sales}}\right) + 0.4 \times \left(\frac{\text{Critic Score}}{\text{Max Critic Score}}\right)$$🔮 Future Enhancements (Roadmap)[ ] Implement ML Regression models (e.g., Random Forest, XGBoost) to predict global sales.[ ] Add K-Means Clustering to group games based on popularity and score profile.[ ] Build an interactive Streamlit web dashboard.
