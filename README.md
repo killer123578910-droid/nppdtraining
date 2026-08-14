@@ -55,10 +55,6 @@ pip install pandas numpy matplotlib
 ### 2. Execution Flow
 
 * **Clean Data:** Validate raw sales data and produce clean CSV.
-```bash
-python clean_data.py
-
-```
 
 
 * **Run Analytics:** Calculate overall metrics and print statistical summaries to the console.
