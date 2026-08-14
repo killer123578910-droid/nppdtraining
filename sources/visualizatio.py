@@ -21,7 +21,7 @@ def best_genres_to_sale(number):
 def yearly_sales_vis():
     yearly_sales=get_yearly_sales(df)
     yearly_sales.index=yearly_sales.index.astype("Int64")
-    print(yearly_sales)
+   
     array=yearly_sales.to_numpy()
 
 
