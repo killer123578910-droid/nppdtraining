@@ -1,23 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from analytics import load_data,get_yearly_sales,ovr,topauthor
+from analytics import load_data,get_yearly_sales,ovr,topauthor,topgenre,region
 df=load_data()
 def best_genres_to_sale(number):
-    pass
+    be=topgenre(df,number)
+    indexes=be.to_numpy()
+    barheight=0.40
+
+    plt.barh(be.index,indexes,height=barheight,color="red")
+    plt.gca().invert_yaxis()
+
+    plt.title("best genres")
+    plt.xlabel("sales")
+    plt.ylabel("genre")
+    
+
+    plt.tight_layout()
+    plt.show()
 def yearly_sales_vis():
     yearly_sales=get_yearly_sales(df)
     yearly_sales.index=yearly_sales.index.astype("Int64")
+    print(yearly_sales)
     array=yearly_sales.to_numpy()
+
+
     plt.bar(yearly_sales.index,array,color="blue")
+
     plt.title("sales by years")
     plt.xlabel("years")
     plt.ylabel("sales")
+    
+
     plt.tight_layout()
     plt.show()
 def top_author(number):
     
-    topau=topauthor(df,number).nlargest(number,"overral")
+    topau=topauthor(df,number)    
     space=np.arange(len(topau))
     barhight=0.35
 
@@ -35,6 +54,7 @@ def top_author(number):
 
     plt.tight_layout()
     plt.show()
+
 
 def each_author(nameauthor):
    pass 
@@ -64,15 +84,27 @@ def best_overall_games(number):
 
     plt.tight_layout()
     plt.show()
-def regions():
-    pass
+def regions(df):
+    rei=region(df)
+    sume=rei.sum()
+    value=rei.to_numpy()
+    colors=['#138f11','#a11d54','#85664e','#3c20c9']
+    plt.pie(value,
+            labels=rei.index,
+            autopct="%.2f",
+            colors=colors,
+            explode=[0.1,0,0,0],
+            shadow=True
+            )
 
-def tesunc():
+    plt.title("sales comparison between regions")
+    plt.show()
     
-    pass
 
 if __name__ == "__main__":
-    #best_overall_games(10)
-    #yearly_sales_vis()
-    #top_author(30)
+    best_overall_games(10)
+    yearly_sales_vis()
+    top_author(30)
+    best_genres_to_sale(10)
+    regions(df)
      

@@ -7,10 +7,10 @@ def get_yearly_sales(df):
     return df.groupby("year")["total_sales"].sum()
 
 def topauthor(df,number):
-    return df.groupby("developer")[["total_sales","overral"]].sum()
+    return df.groupby("developer")[["total_sales","overral"]].sum().nlargest(number,"overral")
 
 def topgenre(df,number):
-    pass
+    return df.groupby("genre")["total_sales"].sum().nlargest(number)
 
 
 
@@ -20,7 +20,14 @@ def ovr(df,number):
     return topn
 
 
-#def region():
+def region(df):
+    ri=pd.Series({"na_sales":df["na_sales"].sum(),
+                "jp_sales":df["jp_sales"].sum(),
+                "pal_sales":df["pal_sales"].sum(),
+                "other_sales":df["other_sales"].sum(),
+                })
+    return ri
+
 
 def run_full_analysis():
     df = load_data()
@@ -33,14 +40,9 @@ def run_full_analysis():
     bestvalue=genre_group["total_sales"].sum()
     print(f"{bestvalue.idxmax()} {bestvalue.max()}")
     print()
-#best regionn
+#best region
     print("best region:")
-    ri=pd.Series({"na_sales":df["na_sales"].sum(),
-                "jp_sales":df["jp_sales"].sum(),
-                "pal_sales":df["pal_sales"].sum(),
-                "other_sales":df["other_sales"].sum(),
-                })
-
+    ri=regionn
     print(ri.idxmax(),round(ri.max(),3))
     print()
 #sale_stats
