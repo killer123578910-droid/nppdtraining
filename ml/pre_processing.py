@@ -9,14 +9,15 @@ def generate_multi_class_labels(df, score_col="overral"):
     Tính các điểm bách phân (percentile) và gán nhãn 5 lớp (0-4) cho dataset.
     """
     # 1. Tính toán các mốc percentile
+    p25= df[score_col].quantile(0.25)
     p50 = df[score_col].quantile(0.50)
     p75 = df[score_col].quantile(0.75)
     p80 = df[score_col].quantile(0.80)
     p90 = df[score_col].quantile(0.90)
     
     # 2. Thiết lập khoảng phân loại (bins) và nhãn số (labels)
-    bins = [-np.inf, p50, p75, p80, p90, np.inf]
-    class_labels = [0, 1, 2, 3, 4]
+    bins = [-np.inf,p25, p50, p75, p80, p90, np.inf]
+    class_labels = [0, 1, 2, 3, 4,5]
     
     # 3. Tạo cột nhãn dạng số cho ML model
     df["label"] = pd.cut(
@@ -28,16 +29,19 @@ def generate_multi_class_labels(df, score_col="overral"):
     
     # 4. Map tên nhãn hiển thị trực quan
     tier_names = {
-        0: "Average/Poor",
-        1: "Good",
-        2: "Great",
-        3: "Awesome",
-        4: "GOAT"
+        0:"That's piece of sh*t",
+        1: "67",
+        2: "Good",
+        3: "Great",
+        4: "Awesome",
+        5: "GOAT"
     }
     df["label_name"] = df["label"].map(tier_names)
     
     # In ra thông kê phân bố các lớp
     print("--- Ngưỡng điểm Percentile ---")
+    print(f"Psh (throw in the trash can pls)   : < {p25:.4f}")
+    print(f"p25 (67)   : >= {p25:.4f}")             
     print(f"P50 (Good)   : >= {p50:.4f}")
     print(f"P75 (Great)  : >= {p75:.4f}")
     print(f"P80 (Awesome): >= {p80:.4f}")
