@@ -56,7 +56,6 @@ pip install pandas numpy matplotlib
 
 * **Clean Data:** Validate raw sales data and produce clean CSV.
 
-
 * **Run Analytics:** Calculate overall metrics and print statistical summaries to the console.
 ```bash
 python analytics.py

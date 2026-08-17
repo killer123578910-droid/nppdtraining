@@ -1,0 +1,57 @@
+import pandas as pd
+
+
+import pandas as pd
+import numpy as np
+
+def generate_multi_class_labels(df, score_col="overral"):
+    """
+    Tính các điểm bách phân (percentile) và gán nhãn 5 lớp (0-4) cho dataset.
+    """
+    # 1. Tính toán các mốc percentile
+    p50 = df[score_col].quantile(0.50)
+    p75 = df[score_col].quantile(0.75)
+    p80 = df[score_col].quantile(0.80)
+    p90 = df[score_col].quantile(0.90)
+    
+    # 2. Thiết lập khoảng phân loại (bins) và nhãn số (labels)
+    bins = [-np.inf, p50, p75, p80, p90, np.inf]
+    class_labels = [0, 1, 2, 3, 4]
+    
+    # 3. Tạo cột nhãn dạng số cho ML model
+    df["label"] = pd.cut(
+        df[score_col], 
+        bins=bins, 
+        labels=class_labels, 
+        right=False
+    )
+    
+    # 4. Map tên nhãn hiển thị trực quan
+    tier_names = {
+        0: "Average/Poor",
+        1: "Good",
+        2: "Great",
+        3: "Awesome",
+        4: "GOAT"
+    }
+    df["label_name"] = df["label"].map(tier_names)
+    
+    # In ra thông kê phân bố các lớp
+    print("--- Ngưỡng điểm Percentile ---")
+    print(f"P50 (Good)   : >= {p50:.4f}")
+    print(f"P75 (Great)  : >= {p75:.4f}")
+    print(f"P80 (Awesome): >= {p80:.4f}")
+    print(f"P90 (GOAT)   : >= {p90:.4f}\n")
+    
+    print("--- Phân bố số lượng game theo lớp ---")
+    print(df["label_name"].value_counts())
+    
+    return df
+
+
+if __name__== "__main__":
+    df=pd.read_csv("../data/cleanedcsv.csv")
+    generate_multi_class_labels(df); 
+    # Lưu dataset sẵn sàng cho khâu Train Model
+    df.to_csv("../data/labeled_games.csv", index=False)
+
