@@ -88,12 +88,16 @@ def create_custom_criteria():
     df = load_data()
     df = pd.read_csv("../data/cleanedcsv.csv")
     
-    # Calculate normalization maximums
-    maxsales = df["total_sales"].max()
-    maxcrit = df["critic_score"].max()
-    
+    #ranking games base on custom_criteria
+    #still get updating +0.1
+    sale_rank=df["total_sales"].rank(pct=True)
+    crit_rank=df["critic_score"].rank(pct=True)
+    df["last_update"] = pd.to_datetime(df["last_update"], errors="coerce")
+    # 2. Tính khoảng cách số ngày từ last_update đến hiện tại
+    # 3 tháng xấp xỉ khoảng 90 ngày
+    days_since_update = (pd.Timestamp.now() - df["last_update"]).dt.days
     # Compute overall score formula
-    df["overall"] = round((df["total_sales"] / maxsales) * 0.6 + (df["critic_score"] / maxcrit) * 0.4, 4)
+    df["overall"] = round((sale_rank * 0.5 + crit_rank * 0.4+(np.where(days_since_update<=90,0.1,0.0))), 4)
     
     # Parse release date into year integers
     df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
