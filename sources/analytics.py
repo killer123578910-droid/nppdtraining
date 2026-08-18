@@ -3,7 +3,7 @@ import numpy as np
 
 # Load data from the cleaned CSV file
 def load_data():
-    return pd.read_csv("../data/cleanedcsv.csv",index_col="id")
+    return pd.read_csv("../data/cleanedcsv.csv")
 
 # Return total sales aggregated by year
 def get_yearly_sales(df):
@@ -11,7 +11,7 @@ def get_yearly_sales(df):
 
 # Return the top developers based on overall score, including total sales
 def topauthor(df, number):
-    return df.groupby("developer")[["total_sales", "overral"]].sum().nlargest(number, "overral")
+    return df.groupby("developer")[["total_sales", "overall"]].sum().nlargest(number, "overall")
 
 # Return the top genres based on total sales
 def topgenre(df, number):
@@ -20,7 +20,7 @@ def topgenre(df, number):
 # Return the top N games based on their calculated overall score
 def ovr(df, number):
     # ovrpoint = currentgame (total_sales/maxtotalsales)*60% + (crit/maxcrit)*40%
-    topn = df.nlargest(number, "overral")
+    topn = df.nlargest(number, "overall")
     return topn
 
 # Calculate and return a Series of total sales across different regions
@@ -81,7 +81,7 @@ def run_full_analysis():
     # 7. Best Overall Games (Added DataFrame print from visualization)
     print("best overall games:")
     best_overall = ovr(df, 10)
-    print(best_overall[["title", "console", "critic_score", "total_sales", "overral"]])
+    print(best_overall[["title", "console", "critic_score", "total_sales", "overall"]])
     print()
 
 def create_custom_criteria():
@@ -93,7 +93,7 @@ def create_custom_criteria():
     maxcrit = df["critic_score"].max()
     
     # Compute overall score formula
-    df["overral"] = round((df["total_sales"] / maxsales) * 0.6 + (df["critic_score"] / maxcrit) * 0.4, 4)
+    df["overall"] = round((df["total_sales"] / maxsales) * 0.6 + (df["critic_score"] / maxcrit) * 0.4, 4)
     
     # Parse release date into year integers
     df["year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year
@@ -105,6 +105,6 @@ def create_custom_criteria():
 
 if __name__ == "__main__":
     # Reload and recalculate metrics
-        #create_custom_criteria()
+    create_custom_criteria()
     # Execute the analysis
     run_full_analysis()

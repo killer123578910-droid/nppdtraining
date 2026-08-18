@@ -41,7 +41,7 @@ def top_author(number):
     barhight=0.35
 
     plt.barh(space+barhight/2,topau["total_sales"],height=barhight,color="red",label="sales(by milion copies")
-    plt.barh(space-barhight/2,topau["overral"],height=barhight,color="green",label="overall scores(points)")
+    plt.barh(space-barhight/2,topau["overall"],height=barhight,color="green",label="overall scores(points)")
 
     plt.yticks(space,topau.index)
     
@@ -76,7 +76,7 @@ def best_overall_games(number):
   
 
 
-    ax[2].barh(o["Name&ver"],o["overral"],color="green")
+    ax[2].barh(o["Name&ver"],o["overall"],color="green")
     ax[2].set_title("best overall")
     ax[2].set_xlabel("ovr")
 

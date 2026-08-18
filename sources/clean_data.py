@@ -3,6 +3,8 @@ import numpy as np
 df=pd.read_csv("../data/vgchartz-2024.csv")
 #print(df.duplicated().sum())
 
+df=df.drop(["img","publisher"],axis=1)
+print(df)
 #valid statstistic of sales
 sale=np.array([
                "na_sales",
