@@ -6,7 +6,7 @@ import numpy as np
 
 def generate_multi_class_labels(df, score_col="total_sales"):
     """
-    Tính các điểm bách phân (percentile) và gán nhãn 5 lớp (0-4) cho dataset.
+    base on percentile to label 0 or 1
     """
     has_rank=df[score_col].notna()
     # 1. Tính toán các mốc percentile

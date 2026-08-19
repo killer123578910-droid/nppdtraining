@@ -2,14 +2,17 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report
+import joblib
 import pandas as pd
+
+le_console = LabelEncoder()
+le_genre = LabelEncoder()
+le_devs=LabelEncoder()
+
 
 df=pd.read_csv("../data/labeled_games.csv")
 def presessor(df):
     #encode collumns for model to load
-    le_console = LabelEncoder()
-    le_genre = LabelEncoder()
-    le_devs=LabelEncoder()
     df["console_encoded"] = le_console.fit_transform(df["console"].astype(str))
     df["genre_encoded"] = le_genre.fit_transform(df["genre"].astype(str))
     df["devs_encoded"]=le_devs.fit_transform(df["developer"].astype(str))
@@ -19,11 +22,11 @@ def presessor(df):
     y=df["label"]
     return train_test_split(X,y,test_size=0.2,random_state=99) 
 def train(df,train_x,valx,train_y,ntree,node,depth):
-    #setup model parameters
+    #fitting
     khuongcuto_model=RandomForestClassifier(n_estimators=ntree,random_state=99,max_leaf_nodes=node,max_depth=depth)
     khuongcuto_model.fit(train_x,train_y)
     predictions=khuongcuto_model.predict(valx)
-    return predictions
+    return predictions,khuongcuto_model
 def hyperparatuning(df,train_x,valx,train_y,valy):
     #setup model parameters
     pr_gr={
@@ -55,10 +58,22 @@ def hyperparatuning(df,train_x,valx,train_y,valy):
     acc=accuracy_score(valy,predictions)
     print(f"best accuracy with independent target: {acc*100:.2f}100%")
     #ideal=n_estimators=150,max_leaf_nodes=350,max_depth=25
+
+def packmodel(model):
+    joblib.dump(model,"../model/mymodel.pkl")
+
+    joblib.dump(le_console, "../model/le_console.pkl")
+    joblib.dump(le_genre, "../model/le_genre.pkl")
+    joblib.dump(le_devs, "../model/le_devs.pkl")
 if __name__=="__main__":
     train_x,valx,train_y,valy=presessor(df)
 
     #run best parameters only for better speed 
-    predictions=train(df,train_x,valx,train_y,150,350,25)
+    predictions,my_model=train(df,train_x,valx,train_y,150,350,25)
+
+
+
     acc=accuracy_score(valy,predictions)
     print(f"\nĐộ chính xác của mô hình (Accuracy): {acc * 100:.2f}%")#79,66%
+    #packing model for later use
+    packmodel(my_model)
