@@ -3,3 +3,6 @@
 /menv
 /.vscode
 /sources/__pycache__
+/.env
+/ml/__pycache__
+/bin/__pycache__

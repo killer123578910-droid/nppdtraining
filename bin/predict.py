@@ -10,7 +10,7 @@ le_genre=joblib.load("../model/le_genre.pkl")
 def predicting(developer, console, genre, critic_score, year):
     #preventing crash if cases have not updated in the training dataset
     #labelenc return a list of nums,so for 1 game, we must take [0]
-    dev_enc=le_console.transform([developer])[0] if developer in le_devs.classes_ else -1
+    dev_enc=le_devs.transform([developer])[0] if developer in le_devs.classes_ else -1
     gen_en=le_genre.transform([genre])[0] if genre in le_genre.classes_ else -1
     con_enc=le_console.transform([console])[0] if genre in le_console.classes_ else -1
 
