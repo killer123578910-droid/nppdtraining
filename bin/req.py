@@ -97,6 +97,7 @@ def detail(id):
         "playstation": "PS",
         "ps vita": "PSV",
         "psp": "PSP",
+        "pc":"PC",
         # --- Xbox Family ---
         "xbox series x": "XOne",  # Generational Mapping (XSX -> XOne)
         "xbox series s/x": "XOne",
@@ -140,18 +141,17 @@ def detail(id):
     params={
         "key":api,
     }
-    det=requests.get(f"https://api.rawg.io/api/games/{id}",params=params).json()
-    name=det["name"]
-    dev=(det["developers"][0]["name"]).strip()
-    cons=det["platforms"][0]["platform"]["name"]
-    cons=RAWG_CONSOLE_MAP[cons.lower().strip()]
-    genr=det["genres"][0]["name"]
-    critics=(det["metacritic"])/10
-    release=det["released"][:4]
-    description=det["description_raw"]
-    print(f"{name}\n{dev}\n{cons}\n{genr}\n{release}\n{critics}\n{description}")
-    predicting(dev,cons,genr,critics,release)
-    #print(det)
 
+    det=requests.get(f"https://api.rawg.io/api/games/{id}",params=params).json()
+    return {   
+            "name":det["name"],
+            "developer":(det["developers"][0]["name"]).strip(),
+            "platform":RAWG_CONSOLE_MAP[(det["platforms"][0]["platform"]["name"]).lower().strip()],
+            "image":det["background_image"],
+            "genre":det["genres"][0]["name"],
+            "critics":(det["metacritic"]),
+            "release":det["released"][:4],
+            "description":det["description_raw"],
+            }
 if __name__=="__main__":
     detail("3498")

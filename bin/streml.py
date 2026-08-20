@@ -2,6 +2,8 @@ import streamlit as st
 import random
 import pandas as pd
 from req import search_g
+from req import detail
+from predict import predicting 
 
 
 # ============================================================
@@ -596,7 +598,7 @@ def results_page():
                         use_container_width=True
                     ):
 
-                        st.session_state.selected_game = game
+                        st.session_state.selected_game = game["id"]
 
                         st.session_state.prediction = None
 
@@ -625,11 +627,12 @@ def results_page():
 def details_page():
 
     game = st.session_state.selected_game
-
+    
+    de=detail(game)
     st.title("🎮 Game Details")
 
     st.header(
-        game["name"]
+        de["name"]
     )
 
     st.divider()
@@ -648,7 +651,7 @@ def details_page():
     with image_col:
 
         st.image(
-            game["image"],
+            de["image"],
         )
 
 
@@ -659,7 +662,7 @@ def details_page():
         )
 
         st.write(
-            game["description"]
+            de["description"]
         )
 
         st.divider()
@@ -672,14 +675,10 @@ def details_page():
 
         with col1:
 
-            st.metric(
-                "💰 Sales",
-                f"{game['sales']}M"
-            )
 
             st.metric(
                 "🏢 Developer",
-                game["developer"]
+                de["developer"]
             )
 
 
@@ -687,13 +686,19 @@ def details_page():
 
             st.metric(
                 "⭐ Metacritic",
-                f"{game['metacritic']}/100"
+                f"{de['critics']}/100"
             )
 
             st.metric(
                 "🎮 Platform",
-                game["platform"]
+                de["platform"]
             )
+            st.metric(
+                "🎮 Release_date:",
+                de["release"]
+            )
+
+
 
 
     st.divider()
@@ -706,7 +711,7 @@ def details_page():
     st.subheader("🎭 Genre")
 
     st.info(
-        game["genre"]
+        de["genre"]
     )
 
 
