@@ -1,16 +1,28 @@
 import joblib
 import pandas as pd
 import numpy as np
-
+df=pd.read_csv("../data/labeled_games.csv")
 mymodel=joblib.load("../model/mymodel.pkl")
 le_console=joblib.load("../model/le_console.pkl")
-le_devs=joblib.load("../model/le_devs.pkl")
+def mapping_dev(df):
+    ddev=df.groupby("developer")["overall"].mean()
+    mapd={}
+    #return type(ddev)
+    id=list(ddev.index)
+    for id,va in ddev.items():
+        if va>=0.1 and va:
+            mapd[id]=va
+        else:
+            mapd[id]=0.05
+    return mapd
+le_devs=mapping_dev(df)
+
 le_genre=joblib.load("../model/le_genre.pkl")
 
-def predicting(developer, console, genre, critic_score, year):
+def predicting(developer, console, genre, critic_score):
     #preventing crash if cases have not updated in the training dataset
     #labelenc return a list of nums,so for 1 game, we must take [0]
-    dev_enc=le_devs.transform([developer])[0] if developer in le_devs.classes_ else -1
+    dev_enc=le_devs[developer] if developer in le_devs else 0.05
     gen_en=le_genre.transform([genre])[0] if genre in le_genre.classes_ else -1
     con_enc=le_console.transform([console])[0] if genre in le_console.classes_ else -1
 
@@ -22,7 +34,6 @@ def predicting(developer, console, genre, critic_score, year):
             "console_encoded":con_enc,
             "genre_encoded":gen_en,
             "critic_score":critic_score,
-            "year":year
         }]
 
     )
@@ -41,4 +52,4 @@ def predicting(developer, console, genre, critic_score, year):
 
 
 if __name__=="__main__":
-    predicting("FromSoftware","PS4","Action",9.4,2024)
+    predicting("From Software","PS4","Action",9.4)

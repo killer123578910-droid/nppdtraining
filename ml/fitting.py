@@ -5,20 +5,34 @@ from sklearn.metrics import accuracy_score, classification_report
 import joblib
 import pandas as pd
 
-le_console = LabelEncoder()
+le_console = LabelEncoder() 
 le_genre = LabelEncoder()
-le_devs=LabelEncoder()
+
 
 
 df=pd.read_csv("../data/labeled_games.csv")
+def mapping_dev(df):
+
+    ddev=df.groupby("developer")["overall"].mean()
+    mapd={}
+    #return type(ddev)
+    id=list(ddev.index)
+    for id,va in ddev.items():
+        if va>=0.1 and va:
+            mapd[id]=va
+        else:
+            mapd[id]=0.05
+    return mapd
+le_devs=mapping_dev(df)
+
 def presessor(df):
     #encode collumns for model to load
     df["console_encoded"] = le_console.fit_transform(df["console"].astype(str))
     df["genre_encoded"] = le_genre.fit_transform(df["genre"].astype(str))
-    df["devs_encoded"]=le_devs.fit_transform(df["developer"].astype(str))
-
+    
+    df["devs_encoded"] = df["developer"].map(le_devs).fillna(0.05)
     #choosing weights
-    X=df[["devs_encoded","console_encoded","genre_encoded","critic_score","year",]]
+    X=df[["devs_encoded","console_encoded","genre_encoded","critic_score"]]
     y=df["label"]
     return train_test_split(X,y,test_size=0.2,random_state=99) 
 def train(df,train_x,valx,train_y,ntree,node,depth):
@@ -64,7 +78,7 @@ def packmodel(model):
 
     joblib.dump(le_console, "../model/le_console.pkl")
     joblib.dump(le_genre, "../model/le_genre.pkl")
-    joblib.dump(le_devs, "../model/le_devs.pkl")
+ 
 if __name__=="__main__":
     train_x,valx,train_y,valy=presessor(df)
 

@@ -43,7 +43,7 @@ def generate_multi_class_labels(df, score_col="total_sales"):
     return df
 def filter_unwanted_columns(df):
     df=df[df["label"]!=-1].copy()
-    return df.drop(["na_sales","jp_sales","pal_sales","other_sales","overall"],axis=1)
+    return df.drop(["na_sales","jp_sales","pal_sales","other_sales"],axis=1)
 
 if __name__== "__main__":
     df=pd.read_csv("../data/cleanedcsv.csv")
