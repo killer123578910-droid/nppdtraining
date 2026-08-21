@@ -5,10 +5,16 @@ from sklearn.metrics import accuracy_score, classification_report
 import joblib
 import pandas as pd
 
-le_console = LabelEncoder() 
-le_genre = LabelEncoder()
+def get_target_mapping(df, col):
+    return df.groupby(col)["overall"].mean().to_dict()
 
-
+def mapping_dev_smooth(df, m=70.0):
+    global_mean = df["overall"].mean()
+    stats = df.groupby("developer")["overall"].agg(["mean", "count"])
+    
+    # Công thức: (n * dev_mean + m * global_mean) / (n + m)
+    smoothed = (stats["count"] * stats["mean"] + m * global_mean) / (stats["count"] + m)
+    return smoothed.to_dict()
 
 df=pd.read_csv("../data/labeled_games.csv")
 def mapping_dev(df):
@@ -27,12 +33,36 @@ le_devs=mapping_dev(df)
 
 def presessor(df):
     #encode collumns for model to load
-    df["console_encoded"] = le_console.fit_transform(df["console"].astype(str))
-    df["genre_encoded"] = le_genre.fit_transform(df["genre"].astype(str))
+    dev_map = mapping_dev_smooth(df)
+    console_map = get_target_mapping(df, "console")
+    genre_map = get_target_mapping(df, "genre")
     
-    df["devs_encoded"] = df["developer"].map(le_devs).fillna(0.05)
+    df["devs_encoded"] = df["developer"].map(dev_map).fillna(0.05)
+    df["console_encoded"] = df["console"].map(console_map).fillna(0.05)
+    df["genre_encoded"] = df["genre"].map(genre_map).fillna(0.05)
+    
+    # Điền NaN bằng điểm trung bình của toàn bộ dataset (ví dụ: 7.2)
+    mean_critic = df["critic_score"].mean()
+    df["critic_score"] = df["critic_score"].fillna(mean_critic)
+    
+    # 2. NỐI FEATURE 1: Phân khoảng Tier (0, 1, 2, 3)
+    bins = [0, 3, 6, 9, 10]
+    labels = [0, 1, 2, 3]
+    df["critic_tier"] = pd.cut(
+        df["critic_score"], bins=bins, labels=labels, include_lowest=True
+    ).fillna(0).astype(float)
+    
+    # 3. NỐI FEATURE 2: Lũy thừa điểm số (tăng khoảng cách giữa 8-9-10)
+    df["critic_power"] = (df["critic_score"] / 10.0) ** 2
+    
     #choosing weights
-    X=df[["devs_encoded","console_encoded","genre_encoded","critic_score"]]
+    X = df[[
+        "devs_encoded", 
+        "console_encoded", 
+        "genre_encoded", 
+        "critic_tier", 
+        "critic_power", 
+    ]]
     y=df["label"]
     return train_test_split(X,y,test_size=0.2,random_state=99) 
 def train(df,train_x,valx,train_y,ntree,node,depth):
@@ -71,23 +101,20 @@ def hyperparatuning(df,train_x,valx,train_y,valy):
     predictions=trainresult.predict(valx)
     acc=accuracy_score(valy,predictions)
     print(f"best accuracy with independent target: {acc*100:.2f}100%")
-    #ideal=n_estimators=150,max_leaf_nodes=350,max_depth=25
+    #ideal=n_estimators=150,max_leaf_nodes=300,max_depth=20
 
 def packmodel(model):
     joblib.dump(model,"../model/mymodel.pkl")
-
-    joblib.dump(le_console, "../model/le_console.pkl")
-    joblib.dump(le_genre, "../model/le_genre.pkl")
  
 if __name__=="__main__":
     train_x,valx,train_y,valy=presessor(df)
-    hyperparatuning(df,train_x,valx,train_y,valy)
+    #hyperparatuning(df,train_x,valx,train_y,valy)
     #run best parameters only for better speed 
-    #predictions,my_model=train(df,train_x,valx,train_y,150,350,25)
+    predictions,my_model=train(df,train_x,valx,train_y,150,300,20)
 
 
 
-    #acc=accuracy_score(valy,predictions)
-    #print(f"\nĐộ chính xác của mô hình (Accuracy): {acc * 100:.2f}%")#79,66%
+    acc=accuracy_score(valy,predictions)
+    print(f"\nĐộ chính xác của mô hình (Accuracy): {acc * 100:.2f}%")#80,89%
     #packing model for later use
-    #packmodel(my_model)
+    packmodel(my_model)

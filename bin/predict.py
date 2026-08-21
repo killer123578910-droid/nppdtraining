@@ -1,56 +1,54 @@
 import joblib
 import pandas as pd
-import numpy as np
-df=pd.read_csv("../data/labeled_games.csv")
-mymodel=joblib.load("../model/mymodel.pkl")
-le_console=joblib.load("../model/le_console.pkl")
-def mapping_dev(df):
-    ddev=df.groupby("developer")["overall"].mean()
-    mapd={}
-    #return type(ddev)
-    id=list(ddev.index)
-    for id,va in ddev.items():
-        if va>=0.1 and va:
-            mapd[id]=va
-        else:
-            mapd[id]=0.05
-    return mapd
-le_devs=mapping_dev(df)
 
-le_genre=joblib.load("../model/le_genre.pkl")
+# Load model & mapping
+mymodel = joblib.load("../model/mymodel.pkl")
+df_train = pd.read_csv("../data/labeled_games.csv")
 
+# 1. Tạo bảng mapping Target Encoding cho cả 3 cột chuỗi
+def get_target_mapping(df, col):
+    # Tính tỷ lệ trung bình của từng nhóm
+    mapping = df.groupby(col)["overall"].mean().to_dict()
+    return mapping
+def mapping_dev_smooth(df, m=70.0):
+    global_mean = df["overall"].mean()
+    stats = df.groupby("developer")["overall"].agg(["mean", "count"])
+    
+    # Công thức: (n * dev_mean + m * global_mean) / (n + m)
+    smoothed = (stats["count"] * stats["mean"] + m * global_mean) / (stats["count"] + m)
+    return smoothed.to_dict()
+dev_map = mapping_dev_smooth(df_train)
+console_map = get_target_mapping(df_train, "console")
+genre_map = get_target_mapping(df_train, "genre")
+
+# In ra kiểm tra tên PC chính xác trong dataset(tool check)
+#print("Các hệ máy có trong data:", [c for c in console_map.keys() if "PC" in str(c).upper()])
 
 def predicting(developer, console, genre, critic_score):
-    #preventing crash if cases have not updated in the training dataset
-    #labelenc return a list of nums,so for 1 game, we must take [0]
-    dev_enc=le_devs[developer] if developer in le_devs else 0.05
-    gen_en=le_genre.transform([genre])[0] if genre in le_genre.classes_ else -1
-    con_enc=le_console.transform([console])[0] if genre in le_console.classes_ else -1
+    # 2. Lấy giá trị Target Encoding an toàn (Fallback 0.05 hoàn toàn hợp lệ)
+    dev_enc = dev_map.get(developer, 0.05)
+    con_enc = console_map.get(console, 0.05)
+    gen_enc = genre_map.get(genre, 0.05)
 
+    # 3. Tính toán các đặc trưng Critics(dùng để nâng độ quan trọng của điểm đánh giá)
+    critic_tier = 3.0 if critic_score > 9 else (2.0 if critic_score > 6 else 1.0)
+    critic_power = (critic_score / 10.0) ** 2
 
-    #forming dataframe for model predicting:
-    df=pd.DataFrame(
-        [{
-            "devs_encoded":dev_enc,
-            "console_encoded":con_enc,
-            "genre_encoded":gen_en,
-            "critic_score":critic_score,
-        }]
+    df_input = pd.DataFrame([{
+        "devs_encoded": dev_enc,
+        "console_encoded": con_enc,     # Giờ đây là số thực (vd: 0.35) chứ không phải nhãn LabelEncoder
+        "genre_encoded": gen_enc,       # Giờ đây là số thực (vd: 0.40)
+        "critic_tier": critic_tier,
+        "critic_power": critic_power,
+    }])
+    #fixing tools
+    # print("--- INPUT CHUẨN ĐÃ FIX ---")
+    # print(df_input.iloc[0].to_dict())
 
-    )
+    # prob = mymodel.predict_proba(df_input)[0]
+    # print(f"Xác suất [Normal , Hot]: {prob}")
+    return df_input
 
-
-
-    #model predictions
-    pred=mymodel.predict(df)[0]
-    #prob explain: each games will be an array, and each array will have n classifier percentages(this proj have 2,are [0,1])
-    #so to choose the '1' prob: [0][1] 
-    prob=mymodel.predict_proba(df)[0][1]
-
-    #print("reuslt:")
-    return ("hot ass"if pred==1 else "normal")
-    #print(f"predict status: {prob*100:.2f}100%")
-
-
-if __name__=="__main__":
-    predicting("From Software","PS4","Action",9.4)
+if __name__ == "__main__":
+    predicting("Rockstar North", "PS4", "Action", 9.4)
+    predicting("FromSoftware", "PS4", "Action", 10)
