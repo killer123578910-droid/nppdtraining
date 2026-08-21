@@ -10,11 +10,13 @@ def generate_multi_class_labels(df, score_col="total_sales"):
     """
     has_rank=df[score_col].notna()
     # 1. Tính toán các mốc percentile
+    p25=df[score_col].quantile(0.25)
+    p50=df[score_col].quantile(0.50)
     p75 = df[score_col].quantile(0.75)
     df["label"]=-1
     # 2. Thiết lập khoảng phân loại (bins) và nhãn số (labels)
-    bins = [-np.inf, p75, np.inf]
-    class_labels = [0, 1]
+    bins = [-np.inf,p25,p50,p75, np.inf]
+    class_labels = [0, 1,2,3]
     
     # 3. Tạo cột nhãn dạng số cho ML model
     df.loc[has_rank,"label"] = pd.cut(
@@ -28,14 +30,18 @@ def generate_multi_class_labels(df, score_col="total_sales"):
     tier_names = {
         -1:"Niche",
         0:"That's piece of sh*t",
-        1: "hot ass"
+        1: "normal",
+        2:"great",
+        3:"excellent"
     }
     df["label_name"] = df["label"].map(tier_names)
     
     # In ra thông kê phân bố các lớp
     print("--- Ngưỡng điểm Percentile ---")
-    print(f"Psh (throw in the trash can pls)   : <{p75:.4f}")
-    print(f"p75 (hot)   : >= {p75:.4f}")             
+    print(f"Psh (throw in the trash can pls)   : <{p25:.4f}")
+    print(f"p25 mid :>{p25:.4f}" )
+    print(f"p50 (hot)   : >= {p50:.4f}")
+    print(f"excellent :>={p75:.4f}")
       
     print("--- Phân bố số lượng game theo lớp ---")
     print(df["label_name"].value_counts())

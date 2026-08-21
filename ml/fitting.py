@@ -81,13 +81,13 @@ def packmodel(model):
  
 if __name__=="__main__":
     train_x,valx,train_y,valy=presessor(df)
-
+    hyperparatuning(df,train_x,valx,train_y,valy)
     #run best parameters only for better speed 
-    predictions,my_model=train(df,train_x,valx,train_y,150,350,25)
+    #predictions,my_model=train(df,train_x,valx,train_y,150,350,25)
 
 
 
-    acc=accuracy_score(valy,predictions)
-    print(f"\nĐộ chính xác của mô hình (Accuracy): {acc * 100:.2f}%")#79,66%
+    #acc=accuracy_score(valy,predictions)
+    #print(f"\nĐộ chính xác của mô hình (Accuracy): {acc * 100:.2f}%")#79,66%
     #packing model for later use
-    packmodel(my_model)
+    #packmodel(my_model)
