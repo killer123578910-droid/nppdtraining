@@ -67,7 +67,7 @@ def presessor(df):
     return train_test_split(X,y,test_size=0.2,random_state=99) 
 def train(df,train_x,valx,train_y,ntree,node,depth):
     #fitting
-    khuongcuto_model=RandomForestClassifier(n_estimators=ntree,random_state=99,max_leaf_nodes=node,max_depth=depth)
+    khuongcuto_model=RandomForestClassifier(n_estimators=ntree,random_state=99,max_leaf_nodes=node,max_depth=depth,max_features=3)
     khuongcuto_model.fit(train_x,train_y)
     predictions=khuongcuto_model.predict(valx)
     return predictions,khuongcuto_model
