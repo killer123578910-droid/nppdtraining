@@ -70,7 +70,7 @@ def search_g(name):
         trans={}
         trans["id"]=game["id"]
         trans["name"]=game["name"].strip()
-        trans["platform"]=RAWG_CONSOLE_MAP[(game["platforms"][0]["platform"]["name"]).lower().strip()]
+        trans["platform"]=RAWG_CONSOLE_MAP[(game["platforms"][0]["platform"]["name"]).lower().strip()] if (game["platforms"][0]["platform"]["name"]).lower().strip() in RAWG_CONSOLE_MAP else "Nan" 
         trans["image"]=game["background_image"]
         
         trans["genre"] = game["genres"][0]["name"] if game.get("genres") else "Unknown"
@@ -146,7 +146,7 @@ def detail(id):
     return {   
             "name":det["name"],
             "developer":(det["developers"][0]["name"]).strip(),
-            "platform":RAWG_CONSOLE_MAP[(det["platforms"][0]["platform"]["name"]).lower().strip()],
+            "platform":RAWG_CONSOLE_MAP[(det["platforms"][0]["platform"]["name"]).lower().strip()] if (det["platforms"][0]["platform"]["name"]).lower().strip() in RAWG_CONSOLE_MAP else "Nan",
             "image":det["background_image"],
             "genre":det["genres"][0]["name"],
             "critics":(det["metacritic"]),

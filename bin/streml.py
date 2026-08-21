@@ -1,9 +1,19 @@
 import streamlit as st
-import random
+import plotly.express as px
+import shap
+import matplotlib.pyplot as plt
 import pandas as pd
-from req import search_g
-from req import detail
-from predict import predicting 
+from req import (search_g,detail)
+from predict import (predicting,get_input,get_model) 
+
+
+feature_names = [
+    "devs_encoded",
+    "console_encoded",
+    "genre_encoded",
+    "critic_tier",
+    "critic_power"
+]
 
 
 # ============================================================
@@ -78,10 +88,10 @@ def predict_game(game_data):
         return prediction[0]
     """
     # ========================================================
-    devs,cons,gen,crit=game_data["developer"],game_data["platform"],game_data["genre"],game_data["critics"]
-    prediction = predicting(devs,cons,gen,crit)
+    devs,cons,gen,crit=game_data["developer"],game_data["platform"],game_data["genre"],(game_data["critics"]/10)
+    df_input=get_input(devs,cons,gen,crit)
+    return predicting(df_input)
     #
-    return prediction
 
 
 # ============================================================
@@ -213,7 +223,293 @@ def show_prediction(prediction):
             f"Unknown model output: {prediction}"
         )
 
+# ============================================================
+# GLOBAL FEATURE IMPORTANCE
+# ============================================================
 
+def show_global_importance(model, feature_names):
+
+    df_imp = pd.DataFrame({
+        "Feature": feature_names,
+        "Importance": model.feature_importances_
+    })
+
+    df_imp = df_imp.sort_values(
+        by="Importance",
+        ascending=True
+    )
+
+    fig = px.bar(
+        df_imp,
+        x="Importance",
+        y="Feature",
+        orientation="h",
+        title="📈 Global Feature Importance",
+        color="Importance"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+    
+# ============================================================
+# LOCAL SHAP EXPLANATION
+# ============================================================
+
+def show_shap_explanation(model, input_df):
+
+    try:
+
+        explainer = shap.TreeExplainer(model)
+
+        shap_explanation = explainer(input_df)
+
+        # Nếu binary classification
+        if len(shap_explanation.shape) == 3:
+
+            shap_explanation = shap_explanation[..., 1]
+
+        # Vẽ waterfall
+        fig = plt.figure()
+
+        shap.plots.waterfall(
+            shap_explanation[0],
+            show=False
+        )
+
+        st.pyplot(
+            fig,
+            use_container_width=True
+        )
+
+        plt.close(fig)
+        
+        st.subheader("📋 What do these features mean?")
+
+        feature_info = {
+            "devs_encoded":
+                "Encoded representation of the game developer.",
+
+            "console_encoded":
+                "Encoded representation of the platform / console.",
+
+            "genre_encoded":
+                "Encoded representation of the game's genre.",
+
+            "critic_tier":
+                "A categorized representation of the critic score.",
+
+            "critic_power":
+                "A numerical representation derived from the critic score."
+        }
+
+        for feature in input_df.columns:
+
+            with st.expander(
+                f"🔹 {feature}"
+            ):
+
+                st.write(
+                    feature_info.get(
+                        feature,
+                        "Feature used by the model."
+                    )
+                )
+
+                st.write(
+                    f"Input value: `{input_df.iloc[0][feature]}`"
+                )
+
+    except Exception as e:
+
+        st.error(
+            "❌ Cannot generate SHAP explanation."
+        )
+
+        st.exception(e)
+    
+# ============================================================
+# MODEL EXPLANATION
+# ============================================================
+
+def show_model_explanation(
+    model,
+    input_df,
+    feature_names
+):
+
+    st.divider()
+
+    st.header("🧠 Why did the model make this prediction?")
+
+    # ========================================================
+    # MODEL INFORMATION
+    # ========================================================
+
+    st.subheader("🤖 Model Information")
+
+    model_name = type(model).__name__
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "Model",
+            model_name
+        )
+
+    with col2:
+        st.metric(
+            "Number of features",
+            len(feature_names)
+        )
+
+    st.caption(
+        "The explanation below shows how each input feature "
+        "contributed to this specific prediction."
+    )
+
+
+    # ========================================================
+    # BASIC SHAP EXPLANATION
+    # ========================================================
+
+    with st.expander(
+        "📖 How to read the SHAP graph?"
+    ):
+
+        st.markdown(
+            """
+### 🔹 What is `f(x)`?
+
+`f(x)` is the **model's output for the current game**.
+
+In other words:
+
+> **f(x) = what the model predicts for this particular game.**
+
+For your classifier, this corresponds to the model's prediction
+for the current input.
+
+---
+
+### 🔹 What is `E[f(x)]`?
+
+`E[f(x)]` is the **expected / average model output** over the
+background data used by SHAP.
+
+You can think of it as:
+
+> **"What would the model normally predict before seeing this
+> particular game?"**
+
+The SHAP explanation starts from `E[f(x)]` and then shows how
+each feature moves the prediction toward or away from `f(x)`.
+
+---
+
+### 🔹 What do the red and blue values mean?
+
+🔴 **Red / positive contribution**
+
+The feature pushes the prediction **toward the explained class**.
+
+🔵 **Blue / negative contribution**
+
+The feature pushes the prediction **away from the explained class**.
+
+The longer the bar, the stronger the contribution.
+
+---
+
+### 🔹 How should I interpret a feature?
+
+For example:
+
+**Critic Power → +0.35**
+
+means that this feature contributed positively to the
+prediction.
+
+While:
+
+**Console → -0.18**
+
+means that the feature pushed the prediction in the opposite
+direction.
+
+This does **not** mean that the feature is inherently
+"good" or "bad".
+
+It only describes its effect for this particular prediction.
+"""
+        )
+
+
+    # ========================================================
+    # TABS
+    # ========================================================
+
+    tab1, tab2 = st.tabs([
+        "🔍 Local Explanation",
+        "📈 Global Feature Importance"
+    ])
+
+
+    # ========================================================
+    # LOCAL SHAP
+    # ========================================================
+
+    with tab1:
+
+        st.subheader(
+            "🔍 Why this game received this prediction"
+        )
+
+        st.write(
+            "This graph explains the contribution of each feature "
+            "for the current game."
+        )
+
+        show_shap_explanation(
+            model,
+            input_df
+        )
+
+
+        st.info(
+            "💡 The SHAP graph explains one game at a time. "
+            "It tells you which features pushed the model's "
+            "decision in each direction."
+        )
+
+
+    # ========================================================
+    # GLOBAL IMPORTANCE
+    # ========================================================
+
+    with tab2:
+
+        st.subheader(
+            "📈 Which features matter most to the model?"
+        )
+
+        st.write(
+            "Global feature importance summarizes how important "
+            "each feature is across the model as a whole."
+        )
+
+        show_global_importance(
+            model,
+            feature_names
+        )
+
+        st.info(
+            "💡 Global importance tells you which features the "
+            "model relies on most overall. It does not explain "
+            "the prediction of one specific game."
+        )
 # ============================================================
 # MANUAL INPUT FORM
 # ============================================================
@@ -346,6 +642,7 @@ def manual_input_page():
         st.rerun()
 
 def manual_prediction_page():
+    game_data=st.session_state.selected_game
 
     st.title("🤖 Prediction Result")
 
@@ -358,6 +655,25 @@ def manual_prediction_page():
     )
 
     st.divider()
+        # ========================================================
+    # MODEL EXPLANATION
+    # ========================================================
+
+    if st.session_state.prediction is not None:
+
+        devs,cons,gen,crit=game_data["developer"],game_data["platform"],game_data["genre"],(game_data["critics"]/10)
+
+        input_df = get_input(
+            devs,cons,gen,crit
+        )
+
+        show_model_explanation(
+            get_model(),
+            input_df,
+            feature_names
+        )
+
+    
 
     if st.button(
         "🔄 Search another game",
@@ -372,6 +688,7 @@ def manual_prediction_page():
 # ============================================================
 
 def search_page():
+    
 
     st.title("🎮 Game Predictor")
 
@@ -755,6 +1072,24 @@ def details_page():
 
         show_prediction(
             st.session_state.prediction
+        )
+        
+      # ========================================================
+    # MODEL EXPLANATION
+    # ========================================================
+
+    if st.session_state.prediction is not None:
+
+        devs,cons,gen,crit=de["developer"],de["platform"],de["genre"],(de["critics"]/10)
+
+        input_df = get_input(
+            devs,cons,gen,crit
+        )
+
+        show_model_explanation(
+            get_model(),
+            input_df,
+            feature_names
         )
 
 

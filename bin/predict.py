@@ -24,12 +24,26 @@ genre_map = get_target_mapping(df_train, "genre")
 # In ra kiểm tra tên PC chính xác trong dataset(tool check)
 #print("Các hệ máy có trong data:", [c for c in console_map.keys() if "PC" in str(c).upper()])
 
-def predicting(developer, console, genre, critic_score):
-    # 2. Lấy giá trị Target Encoding an toàn (Fallback 0.05 hoàn toàn hợp lệ)
+def predicting(df_input):
+    #fixing tools
+    # print("--- INPUT CHUẨN ĐÃ FIX ---")
+    # print(df_input.iloc[0].to_dict())
+
+    prob = mymodel.predict(df_input)[0]
+    # print(f"Xác suất [Normal , Hot]: {prob}")
+    ans="hot ass" if prob==1 else "normal"
+    return ans
+
+def get_model():
+    return mymodel
+
+def get_input(developer, console, genre, critic_score):
+    
+       # 2. Lấy giá trị Target Encoding an toàn (Fallback 0.05 hoàn toàn hợp lệ)
     dev_enc = dev_map.get(developer, 0.05)
     con_enc = console_map.get(console, 0.05)
     gen_enc = genre_map.get(genre, 0.05)
-
+    critic_score=critic_score if critic_score else 3
     # 3. Tính toán các đặc trưng Critics(dùng để nâng độ quan trọng của điểm đánh giá)
     critic_tier = 3.0 if critic_score > 9 else (2.0 if critic_score > 6 else 1.0)
     critic_power = (critic_score / 10.0) ** 2
@@ -41,14 +55,7 @@ def predicting(developer, console, genre, critic_score):
         "critic_tier": critic_tier,
         "critic_power": critic_power,
     }])
-    #fixing tools
-    # print("--- INPUT CHUẨN ĐÃ FIX ---")
-    # print(df_input.iloc[0].to_dict())
-
-    # prob = mymodel.predict_proba(df_input)[0]
-    # print(f"Xác suất [Normal , Hot]: {prob}")
     return df_input
 
 if __name__ == "__main__":
-    predicting("Rockstar North", "PS4", "Action", 9.4)
-    predicting("FromSoftware", "PS4", "Action", 10)
+    predicting(get_input("Rockstar North", "PS4", "Action", 9.4)) 
