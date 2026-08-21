@@ -48,7 +48,7 @@ def predicting(developer, console, genre, critic_score):
     prob=mymodel.predict_proba(df)[0][1]
 
     #print("reuslt:")
-    return ("Hot ass"if pred==1 else "Normal")
+    return ("hot ass"if pred==1 else "normal")
     #print(f"predict status: {prob*100:.2f}100%")
 
 

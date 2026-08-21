@@ -345,7 +345,28 @@ def manual_input_page():
 
         st.rerun()
 
+def manual_prediction_page():
 
+    st.title("🤖 Prediction Result")
+
+    st.subheader("Your game prediction")
+
+    st.divider()
+
+    show_prediction(
+        st.session_state.prediction
+    )
+
+    st.divider()
+
+    if st.button(
+        "🔄 Search another game",
+        use_container_width=True
+    ):
+
+        reset_search()
+
+        st.rerun()
 # ============================================================
 # SEARCH PAGE
 # ============================================================
@@ -769,3 +790,5 @@ elif st.session_state.page == "details":
 elif st.session_state.page == "input":
 
     manual_input_page()
+elif st.session_state.page == "prediction":
+    manual_prediction_page()
