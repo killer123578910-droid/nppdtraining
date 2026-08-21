@@ -19,6 +19,7 @@ le_devs=mapping_dev(df)
 
 le_genre=joblib.load("../model/le_genre.pkl")
 
+
 def predicting(developer, console, genre, critic_score):
     #preventing crash if cases have not updated in the training dataset
     #labelenc return a list of nums,so for 1 game, we must take [0]
@@ -46,9 +47,9 @@ def predicting(developer, console, genre, critic_score):
     #so to choose the '1' prob: [0][1] 
     prob=mymodel.predict_proba(df)[0][1]
 
-    print("reuslt:")
-    print("Hot ass"if pred==1 else "Nah")
-    print(f"predict status: {prob*100:.2f}100%")
+    #print("reuslt:")
+    return ("Hot ass"if pred==1 else "Normal")
+    #print(f"predict status: {prob*100:.2f}100%")
 
 
 if __name__=="__main__":

@@ -77,25 +77,11 @@ def predict_game(game_data):
 
         return prediction[0]
     """
-
     # ========================================================
-    # TODO: GỌI MODEL CỦA BẠN
-    # ========================================================
-
-    # prediction = model.predict(...)
+    devs,cons,gen,crit=game_data["developer"],game_data["platform"],game_data["genre"],game_data["critics"]
+    prediction = predicting(devs,cons,gen,crit)
     #
-    # return prediction[0]
-
-
-    # ========================================================
-    # MOCK
-    # XÓA SAU KHI KẾT NỐI MODEL
-    # ========================================================
-
-    return random.choice([
-        "hot ass",
-        "normal"
-    ])
+    return prediction
 
 
 # ============================================================
@@ -325,7 +311,7 @@ def manual_input_page():
 
             "platform": platform,
 
-            "metacritic": metacritic
+            "critics": metacritic
         }
 
 
@@ -737,7 +723,7 @@ def details_page():
             ):
 
                 prediction = predict_game(
-                    game
+                de
                 )
 
             st.session_state.prediction = prediction
