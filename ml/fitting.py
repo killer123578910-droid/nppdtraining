@@ -4,6 +4,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
 import pandas as pd
+import pathlib
+
+basedir= pathlib.Path(__file__).parent.resolve()
+dataset=basedir.parent/"data"/"labeled_games.csv"
+df=pd.read_csv(dataset)
 
 def get_target_mapping(df, col):
     return df.groupby(col)["overall"].mean().to_dict()
@@ -16,7 +21,7 @@ def mapping_dev_smooth(df, m=70.0):
     smoothed = (stats["count"] * stats["mean"] + m * global_mean) / (stats["count"] + m)
     return smoothed.to_dict()
 
-df=pd.read_csv("../data/labeled_games.csv")
+
 def mapping_dev(df):
 
     ddev=df.groupby("developer")["overall"].mean()

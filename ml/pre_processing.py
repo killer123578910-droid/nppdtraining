@@ -1,8 +1,12 @@
 import pandas as pd
 
-
+import pathlib
 import pandas as pd
 import numpy as np
+
+basedir= pathlib.Path(__file__).parent.resolve()
+dataset=basedir.parent/"data"/"cleanedcsv.csv"
+tods=basedir.parent/"data"/"labeled_games.csv"
 
 def generate_multi_class_labels(df, score_col="total_sales"):
     """
@@ -47,10 +51,11 @@ def filter_unwanted_columns(df):
     return df.drop(["na_sales","jp_sales","pal_sales","other_sales"],axis=1)
 
 if __name__== "__main__":
-    df=pd.read_csv("../data/cleanedcsv.csv")
+    
+    df=pd.read_csv(dataset)
     print(df["total_sales"].isna().value_counts())
     generate_multi_class_labels(df); 
     df=filter_unwanted_columns(df) 
     # Lưu dataset sẵn sàng cho khâu Train Model
-    df.to_csv("../data/labeled_games.csv", index=False)
+    df.to_csv(tods, index=False)
 

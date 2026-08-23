@@ -1,9 +1,15 @@
 import joblib
 import pandas as pd
 
+import pathlib
+
+basedir= pathlib.Path(__file__).parent.resolve()
+
+modelp=basedir.parent/"model"/"mymodel.pkl"
+dataset=basedir.parent/"data"/"labeled_games.csv"
 # Load model & mapping
-mymodel = joblib.load("../model/mymodel.pkl")
-df_train = pd.read_csv("../data/labeled_games.csv")
+mymodel = joblib.load(modelp)
+df_train = pd.read_csv(dataset)
 
 # 1. Tạo bảng mapping Target Encoding cho cả 3 cột chuỗi
 def get_target_mapping(df, col):
@@ -30,7 +36,7 @@ def predicting(df_input):
     # print(df_input.iloc[0].to_dict())
 
     prob = mymodel.predict(df_input)[0]
-    # print(f"Xác suất [Normal , Hot]: {prob}")
+    #print(f"Xác suất [Normal , Hot]: {prob}")
     ans="hot ass" if prob==1 else "normal"
     return ans
 
