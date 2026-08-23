@@ -396,10 +396,7 @@ The trained model is stored in:
 ```text
 model/mymodel.pkl
 ```
-the web i set up with streamlit:
-```text
-https://nppdtraining-zlk9vyycfs5aveh93vgpxb.streamlit.app/
-```
+
 
 # 🎯 Why I Made This Project
 
