@@ -1,10 +1,10 @@
-# 🎮 Video Game Sales Analysis & Machine Learning
+# Video Game Sales Analysis & Machine Learning
 
 A small end-to-end data project for analyzing video game sales data and experimenting with introductory machine learning.
 
 This project was built as a learning project while getting familiar with **data processing, exploratory data analysis, visualization, and basic machine learning**. The main goal is not to build a production-level prediction system, but to understand how a dataset can be taken from raw data to a simple trained ML model.
 
-## 📌 Project Overview
+## Project Overview
 
 The project uses video game sales data to explore questions such as:
 
@@ -19,7 +19,7 @@ The project then uses a **Random Forest Classifier** to experiment with predicti
 
 The project is intentionally kept at an introductory level. The focus is on understanding the workflow rather than claiming state-of-the-art ML performance.
 
-## 🔗 Demo
+## Demo
 
 A simple Streamlit application is available here:
 
@@ -27,7 +27,7 @@ A simple Streamlit application is available here:
 
 The application provides an interactive way to explore the analysis and use the trained model.
 
-## 🧠 What I Learned
+## What I Learned
 
 This project was mainly created to practice the fundamentals of a typical data/ML workflow:
 
@@ -57,7 +57,7 @@ The repository contains separate folders for data, analysis, ML preprocessing/tr
 
 ---
 
-## 📊 1. Data Processing
+## 1. Data Processing
 
 The original dataset is stored in:
 
@@ -88,7 +88,7 @@ This part is intentionally simple because the main purpose was to become familia
 
 ---
 
-## 📈 2. Data Analysis
+## 2. Data Analysis
 
 The analysis focuses mainly on sales, critic scores, genres, developers, regions, and release years.
 
@@ -133,7 +133,7 @@ This score is mainly used as an exploratory metric for the project rather than a
 
 ---
 
-## 📉 3. Data Visualization
+## 3. Data Visualization
 
 The project uses **Matplotlib** to visualize several aspects of the dataset.
 
@@ -145,17 +145,11 @@ Examples include:
 * Regional sales distribution
 * Top games based on critic score, sales, and overall score
 
-The visualization code is located in:
-
-```text
-sources/visualizatio.py
-```
-
 The purpose of these charts is to make patterns in the dataset easier to inspect before moving into the ML stage.
 
 ---
 
-# 🤖 4. Machine Learning
+# 4. Machine Learning
 
 The ML part of the project is an introductory classification experiment.
 
@@ -181,7 +175,7 @@ This is a project-specific label, not an official industry classification.
 
 ---
 
-## 🧩 Feature Engineering
+## Feature Engineering
 
 Several features are created before training the model.
 
@@ -222,11 +216,9 @@ critic_tier
 critic_power
 ```
 
-The implementation can be found in `ml/fitting.py`.
-
 ---
 
-# 🌲 5. Random Forest Classifier
+# 5. Random Forest Classifier
 
 The main ML model is:
 
@@ -267,7 +259,7 @@ However, the final script uses a fixed configuration instead of running the grid
 
 ---
 
-## ⚠️ Limitations
+## Limitations
 
 There are several limitations to this project.
 
@@ -322,7 +314,7 @@ A future version could investigate additional metrics such as:
 
 ---
 
-# 📁 Project Structure
+# Project Structure
 
 ```text
 nppdtraining/
@@ -355,7 +347,7 @@ The repository is currently organized into separate data, analysis, ML, and mode
 
 ---
 
-# 🛠️ Technologies
+# Technologies
 
 The project mainly uses:
 
@@ -369,7 +361,7 @@ The project mainly uses:
 
 ---
 
-# ▶️ Running the Project
+# Running the Project
 
 Clone the repository:
 
@@ -397,8 +389,9 @@ The trained model is stored in:
 model/mymodel.pkl
 ```
 
+---
 
-# 🎯 Why I Made This Project
+# Why I Made This Project
 
 I am currently a student learning the fundamentals of **data processing and introductory machine learning**.
 
@@ -437,9 +430,7 @@ My longer-term goal is to become an **AI Engineer**, so I am using projects like
 
 ---
 
----
-
-# 📚 Project Status
+# Project Status
 
 **Status: Learning / Experimental**
 
